@@ -1,2 +1,5 @@
 
 .ipynb_checkpoints/ETL Pipeline Preparation-checkpoint.ipynb
+.ipynb_checkpoints/ML Pipeline Preparation-checkpoint.ipynb
+disaster_response.db
+.vscode/settings.json
