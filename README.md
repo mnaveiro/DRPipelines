@@ -1,5 +1,9 @@
 # Disaster Response Pipeline Project
 
+### Description
+
+The project objective is to load an clean data set containing real messages that were sent during disaster events. Then a machine learning pipeline categorizes these events so that new messages can be send to an appropriate disaster relief agency.
+
 ### Instructions:
 1. Run the following commands in the project's root directory to set up your database and model.
 
