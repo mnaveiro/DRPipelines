@@ -8,6 +8,7 @@ from nltk.tokenize import word_tokenize
 from flask import Flask
 from flask import render_template, request, jsonify
 from plotly.graph_objs import Bar
+from plotly.graph_objs import Pie
 from sklearn.externals import joblib
 from sqlalchemy import create_engine
 
@@ -26,11 +27,11 @@ def tokenize(text):
     return clean_tokens
 
 # load data
-engine = create_engine('sqlite:///../data/YourDatabaseName.db')
-df = pd.read_sql_table('YourTableName', engine)
+engine = create_engine('sqlite:///../data/InsertDatabaseName.db')
+df = pd.read_sql_table('InsertTableName', engine)
 
 # load model
-model = joblib.load("../models/your_model_name.pkl")
+model = joblib.load("../models/classifier.pkl")
 
 
 # index webpage displays cool visuals and receives user input text for model
@@ -42,7 +43,24 @@ def index():
     # TODO: Below is an example - modify to extract data for your own visuals
     genre_counts = df.groupby('genre').count()['message']
     genre_names = list(genre_counts.index)
+
+    percentages = df.iloc[:, 4:].sum() 
+    categories = [c.replace('_', ' ') for c in percentages.index]
     
+    gb = df.groupby('genre')
+    groups = [gb.get_group(x) for x in gb.groups]
+    genres = []
+    for g in groups:
+        genres.append((g.iloc[0,3], g.iloc[:, 4:].sum().sort_values(ascending=False)[0:5]))
+
+    traces = []
+    for g in genres:
+        traces.append(Bar(
+            y=g[1].values,
+            x=[str(x).replace('_', ' ') for x in g[1].index],
+            name=g[0]
+        ))
+
     # create visuals
     # TODO: Below is an example - modify to create your own visuals
     graphs = [
@@ -61,6 +79,40 @@ def index():
                 },
                 'xaxis': {
                     'title': "Genre"
+                }
+            }
+        },
+        {
+            'data': [
+                Pie(
+                    labels=categories,
+                    values=percentages
+                )
+            ],
+
+            'layout': {
+                'autosize': False,
+                'width': 1100,
+                'height': 900,
+                'title': 'Frequency per catergory',
+                'yaxis': {
+                    'title': "%"
+                },
+                'xaxis': {
+                    'title': "Category"
+                }
+            }
+        },
+        {
+            'data': traces,
+            'layout': {
+                'barmode': 'stack',
+                'title': 'Top 5 Categories per Genre',
+                'yaxis': {
+                    'title': "Count"
+                },
+                'xaxis': {
+                    'title': "Category"
                 }
             }
         }
